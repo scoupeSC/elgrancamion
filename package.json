@@ -4,9 +4,10 @@
   "description": "Sistema de gestión de boletas tipo rifa",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node scripts/generate-boletas.js && node server.js",
     "dev": "node --watch server.js",
-    "generate": "node scripts/generate-boletas.js"
+    "generate": "node scripts/generate-boletas.js",
+    "build": "npm install && node scripts/generate-boletas.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
