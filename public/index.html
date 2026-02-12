@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎫 Panel de Administración - Boletas Rifa</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #6c5ce7;
+      --primary-light: #a29bfe;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --danger: #d63031;
+      --dark: #2d3436;
+      --gray: #636e72;
+      --light: #dfe6e9;
+      --bg: #f5f6fa;
+      --card: #ffffff;
+      --shadow: 0 2px 10px rgba(0,0,0,0.08);
+      --radius: 12px;
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: 260px;
+      background: linear-gradient(135deg, var(--primary), #4834d4);
+      color: white;
+      padding: 20px 0;
+      z-index: 100;
+      overflow-y: auto;
+    }
+    .sidebar .logo {
+      text-align: center;
+      padding: 20px;
+      font-size: 1.4em;
+      font-weight: 700;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 10px;
+    }
+    .sidebar nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      transition: all 0.3s;
+      font-size: 0.95em;
+    }
+    .sidebar nav a:hover,
+    .sidebar nav a.active {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border-right: 3px solid white;
+    }
+    .sidebar nav a .icon { font-size: 1.3em; }
+
+    /* ===== MAIN CONTENT ===== */
+    .main {
+      margin-left: 260px;
+      padding: 30px;
+      min-height: 100vh;
+    }
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .page-header h1 {
+      font-size: 1.8em;
+      color: var(--dark);
+    }
+
+    /* ===== CARDS MÉTRICAS ===== */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .metric-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+    }
+    .metric-card.purple::before { background: var(--primary); }
+    .metric-card.green::before { background: var(--success); }
+    .metric-card.yellow::before { background: var(--warning); }
+    .metric-card.red::before { background: var(--danger); }
+    .metric-card .metric-icon { font-size: 2em; margin-bottom: 8px; }
+    .metric-card .metric-value {
+      font-size: 2.2em;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .metric-card .metric-label {
+      color: var(--gray);
+      font-size: 0.9em;
+      margin-top: 4px;
+    }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress-container {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 30px;
+    }
+    .progress-bar-bg {
+      background: var(--light);
+      border-radius: 10px;
+      height: 24px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--success));
+      border-radius: 10px;
+      transition: width 0.5s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.8em;
+      font-weight: 600;
+    }
+
+    /* ===== TABLES ===== */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--light);
+    }
+    .card-header h2 { font-size: 1.2em; }
+    .card-body { padding: 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table th, table td {
+      padding: 12px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--light);
+      font-size: 0.9em;
+    }
+    table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: var(--gray);
+      text-transform: uppercase;
+      font-size: 0.8em;
+    }
+    table tr:hover { background: #f8f9ff; }
+
+    /* ===== BADGES ===== */
+    .badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      font-weight: 600;
+      display: inline-block;
+    }
+    .badge-disponible { background: #e8f8f5; color: #00b894; }
+    .badge-vendida { background: #fdecea; color: #d63031; }
+    .badge-reservada { background: #fef9e7; color: #e17055; }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: #5a4bd1; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: #00a381; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { background: #c0392b; }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+    .btn-outline:hover { background: var(--primary); color: white; }
+    .btn-sm { padding: 6px 12px; font-size: 0.8em; }
+
+    /* ===== FORMS ===== */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.9em;
+      color: var(--gray);
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      border: 2px solid var(--light);
+      border-radius: 8px;
+      font-size: 0.95em;
+      transition: border-color 0.3s;
+      font-family: inherit;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: white;
+      border-radius: var(--radius);
+      width: 90%;
+      max-width: 550px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--light);
+    }
+    .modal-header h3 { font-size: 1.2em; }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: var(--gray);
+    }
+    .modal-body { padding: 24px; }
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--light);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    /* ===== SEARCH BAR ===== */
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .search-bar input {
+      flex: 1;
+      min-width: 200px;
+    }
+    .search-bar select {
+      padding: 10px 14px;
+      border: 2px solid var(--light);
+      border-radius: 8px;
+      font-size: 0.95em;
+      background: white;
+    }
+
+    /* ===== PAGINATION ===== */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      padding: 20px;
+    }
+    .pagination button {
+      padding: 8px 14px;
+      border: 1px solid var(--light);
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85em;
+    }
+    .pagination button.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .pagination span { color: var(--gray); font-size: 0.9em; }
+
+    /* ===== SECTIONS ===== */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ===== TOP BUYERS TABLE ===== */
+    .top-buyers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .top-buyers-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ===== TOAST ===== */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      padding: 14px 24px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      animation: slideIn 0.3s ease;
+      min-width: 280px;
+    }
+    .toast-success { background: var(--success); }
+    .toast-error { background: var(--danger); }
+    .toast-info { background: var(--primary); }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .sidebar { width: 70px; }
+      .sidebar .logo span, .sidebar nav a span { display: none; }
+      .sidebar nav a { justify-content: center; padding: 14px; }
+      .main { margin-left: 70px; padding: 15px; }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--gray);
+    }
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      border: 3px solid var(--light);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray);
+    }
+    .empty-state .icon { font-size: 3em; margin-bottom: 10px; }
+
+    /* ===== BOLETA SELECTOR ===== */
+    .boleta-selector-search {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .boletas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 8px;
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 8px;
+      border: 2px solid var(--light);
+      border-radius: 10px;
+      background: #fafafa;
+    }
+    .boleta-chip {
+      padding: 10px 6px;
+      border: 2px solid var(--light);
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.9em;
+      transition: all 0.2s;
+      background: white;
+      user-select: none;
+    }
+    .boleta-chip:hover {
+      border-color: var(--primary);
+      background: #f0f0ff;
+    }
+    .boleta-chip.selected {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+    .selected-boletas-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 12px;
+      background: #f0f0ff;
+      border-radius: 8px;
+      min-height: 44px;
+      align-items: center;
+    }
+    .selected-tag {
+      background: var(--primary);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 0.85em;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .selected-tag .remove {
+      cursor: pointer;
+      font-size: 1.1em;
+      opacity: 0.8;
+    }
+    .selected-tag .remove:hover { opacity: 1; }
+    .boletas-grid-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.85em;
+      color: var(--gray);
+    }
+    .boleta-pagination {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .boleta-pagination button {
+      padding: 6px 12px;
+      border: 1px solid var(--light);
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8em;
+    }
+    .boleta-pagination button.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .boleta-pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">🎫 <span>Boletas Rifa</span></div>
+    <nav>
+      <a href="#" class="active" data-section="dashboard" onclick="showSection('dashboard')">
+        <span class="icon">📊</span> <span>Dashboard</span>
+      </a>
+      <a href="#" data-section="boletas" onclick="showSection('boletas')">
+        <span class="icon">🎟️</span> <span>Boletas</span>
+      </a>
+      <a href="#" data-section="clientes" onclick="showSection('clientes')">
+        <span class="icon">👥</span> <span>Clientes</span>
+      </a>
+      <a href="#" data-section="vender" onclick="showSection('vender')">
+        <span class="icon">💰</span> <span>Vender Boleta</span>
+      </a>
+      <a href="#" data-section="config" onclick="showSection('config')">
+        <span class="icon">⚙️</span> <span>Configuración</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- ==================== DASHBOARD ==================== -->
+    <div id="section-dashboard" class="section active">
+      <div class="page-header">
+        <h1>📊 Dashboard</h1>
+        <button class="btn btn-outline" onclick="loadDashboard()">🔄 Actualizar</button>
+      </div>
+
+      <div class="metrics-grid" id="metricsGrid">
+        <div class="metric-card purple">
+          <div class="metric-icon">🎫</div>
+          <div class="metric-value" id="m-total">-</div>
+          <div class="metric-label">Total Boletas</div>
+        </div>
+        <div class="metric-card green">
+          <div class="metric-icon">✅</div>
+          <div class="metric-value" id="m-vendidas">-</div>
+          <div class="metric-label">Vendidas</div>
+        </div>
+        <div class="metric-card yellow">
+          <div class="metric-icon">📦</div>
+          <div class="metric-value" id="m-disponibles">-</div>
+          <div class="metric-label">Disponibles</div>
+        </div>
+        <div class="metric-card red">
+          <div class="metric-icon">🔒</div>
+          <div class="metric-value" id="m-reservadas">-</div>
+          <div class="metric-label">Reservadas</div>
+        </div>
+        <div class="metric-card green">
+          <div class="metric-icon">👥</div>
+          <div class="metric-value" id="m-clientes">-</div>
+          <div class="metric-label">Total Clientes</div>
+        </div>
+        <div class="metric-card purple">
+          <div class="metric-icon">💰</div>
+          <div class="metric-value" id="m-ingresos">-</div>
+          <div class="metric-label">Ingresos</div>
+        </div>
+      </div>
+
+      <!-- Barra de progreso -->
+      <div class="progress-container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3>Progreso de Ventas</h3>
+          <span id="progress-text" style="font-weight: 700; color: var(--primary);">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Top Compradores + Ventas por día -->
+      <div class="top-buyers-grid">
+        <div class="card">
+          <div class="card-header"><h2>🏆 Top Compradores</h2></div>
+          <div class="card-body">
+            <table>
+              <thead>
+                <tr><th>#</th><th>Cliente</th><th>Cédula</th><th>Boletas</th></tr>
+              </thead>
+              <tbody id="topBuyersBody">
+                <tr><td colspan="4" class="loading">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>📅 Ventas por Día</h2></div>
+          <div class="card-body">
+            <table>
+              <thead>
+                <tr><th>Fecha</th><th>Boletas Vendidas</th></tr>
+              </thead>
+              <tbody id="salesByDayBody">
+                <tr><td colspan="2" class="loading">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== BOLETAS ==================== -->
+    <div id="section-boletas" class="section">
+      <div class="page-header">
+        <h1>🎟️ Gestión de Boletas</h1>
+      </div>
+
+      <div class="search-bar">
+        <input type="text" class="form-control" id="boletaSearch" placeholder="🔍 Buscar por número de boleta..." onkeyup="searchBoletas()">
+        <select id="boletaFilter" onchange="filterBoletas()">
+          <option value="">Todos los estados</option>
+          <option value="disponible">Disponible</option>
+          <option value="vendida">Vendida</option>
+          <option value="reservada">Reservada</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <table>
+            <thead>
+              <tr>
+                <th>Número</th>
+                <th>Código</th>
+                <th>Estado</th>
+                <th>Cliente</th>
+                <th>Fecha Venta</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="boletasTableBody">
+              <tr><td colspan="6" class="loading">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="pagination" id="boletasPagination"></div>
+    </div>
+
+    <!-- ==================== CLIENTES ==================== -->
+    <div id="section-clientes" class="section">
+      <div class="page-header">
+        <h1>👥 Gestión de Clientes</h1>
+        <button class="btn btn-primary" onclick="openModal('clienteModal')">➕ Nuevo Cliente</button>
+      </div>
+
+      <div class="search-bar">
+        <input type="text" class="form-control" id="clienteSearch" placeholder="🔍 Buscar por nombre, cédula, teléfono..." onkeyup="debounceSearchClientes()">
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Cédula</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Boletas</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="clientesTableBody">
+              <tr><td colspan="6" class="loading">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="pagination" id="clientesPagination"></div>
+    </div>
+
+    <!-- ==================== VENDER BOLETA ==================== -->
+    <div id="section-vender" class="section">
+      <div class="page-header">
+        <h1>💰 Vender Boleta</h1>
+      </div>
+
+      <!-- Paso 1: Seleccionar Boletas -->
+      <div class="card">
+        <div class="card-header">
+          <h2>📋 Paso 1: Seleccionar Boletas Disponibles</h2>
+          <span id="ventaBoletasCount" style="font-size:0.85em; color:var(--gray);"></span>
+        </div>
+        <div class="card-body" style="padding: 20px;">
+          <div class="boleta-selector-search">
+            <input type="text" class="form-control" id="ventaBoletaSearch" placeholder="🔍 Buscar boleta por número..." oninput="buscarBoletaDisponible()">
+            <button class="btn btn-outline btn-sm" onclick="limpiarSeleccionBoletas()" title="Limpiar selección">✖ Limpiar</button>
+          </div>
+
+          <div class="boletas-grid-info">
+            <span id="ventaGridInfo">Cargando boletas disponibles...</span>
+            <span id="ventaSelectedCount" style="font-weight:600; color:var(--primary);">0 seleccionada(s)</span>
+          </div>
+
+          <div class="boletas-grid" id="ventaBoletasGrid">
+            <div class="loading">Cargando...</div>
+          </div>
+
+          <div class="boleta-pagination" id="ventaBoletasPagination"></div>
+
+          <!-- Boletas seleccionadas -->
+          <div id="ventaSelectedBar" class="selected-boletas-bar" style="display:none;">
+            <strong style="margin-right: 8px; color:var(--gray); font-size:0.85em;">Seleccionadas:</strong>
+            <div id="ventaSelectedTags"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 2: Seleccionar Cliente -->
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h2>👤 Paso 2: Seleccionar Cliente</h2>
+        </div>
+        <div class="card-body" style="padding: 20px;">
+          <div class="form-group">
+            <label>Buscar Cliente por nombre o cédula</label>
+            <input type="text" class="form-control" id="ventaClienteSearch" placeholder="🔍 Escriba nombre o cédula del cliente..." oninput="buscarClienteVenta()">
+            <div id="ventaClienteResults" style="max-height: 200px; overflow-y: auto; margin-top: 8px;"></div>
+          </div>
+
+          <div id="ventaClienteSelected" style="margin: 16px 0; padding: 14px; background: #e8f8f5; border-radius: 8px; display: none; border: 2px solid var(--success);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <strong>✅ Cliente seleccionado:</strong> <span id="ventaClienteNombre" style="font-size:1.05em;"></span>
+              </div>
+              <button class="btn btn-sm btn-outline" onclick="deseleccionarCliente()">Cambiar</button>
+            </div>
+            <input type="hidden" id="ventaClienteId">
+          </div>
+
+          <div class="form-group" style="margin-top: 10px;">
+            <label>¿Cliente nuevo?</label>
+            <button class="btn btn-outline btn-sm" onclick="openModal('clienteModal')">➕ Registrar nuevo cliente</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 3: Confirmar Venta -->
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h2>✅ Paso 3: Confirmar Venta</h2>
+        </div>
+        <div class="card-body" style="padding: 20px;">
+          <div id="ventaResumen" style="margin-bottom:16px; padding:14px; background:#f8f9fa; border-radius:8px; color:var(--gray);">
+            Seleccione boletas y un cliente para ver el resumen.
+          </div>
+          <button class="btn btn-success" onclick="realizarVenta()" style="width: 100%; padding: 16px; font-size: 1.15em;">
+            🎫 Confirmar Venta
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== CONFIGURACIÓN ==================== -->
+    <div id="section-config" class="section">
+      <div class="page-header">
+        <h1>⚙️ Configuración de la Rifa</h1>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2>🎫 Datos de la Rifa</h2></div>
+        <div class="card-body" style="padding: 24px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label>Nombre de la Rifa</label>
+              <input type="text" class="form-control" id="cfg-nombre" placeholder="Gran Rifa Benéfica">
+            </div>
+            <div class="form-group">
+              <label>Precio por Boleta</label>
+              <input type="number" class="form-control" id="cfg-precio" placeholder="10000">
+            </div>
+            <div class="form-group">
+              <label>Descripción</label>
+              <input type="text" class="form-control" id="cfg-descripcion" placeholder="Rifa para recaudar fondos...">
+            </div>
+            <div class="form-group">
+              <label>Premio</label>
+              <input type="text" class="form-control" id="cfg-premio" placeholder="Carro 0km, Casa, etc.">
+            </div>
+            <div class="form-group">
+              <label>Fecha del Sorteo</label>
+              <input type="date" class="form-control" id="cfg-fecha">
+            </div>
+            <div class="form-group">
+              <label>Organizador</label>
+              <input type="text" class="form-control" id="cfg-organizador" placeholder="Nombre del organizador">
+            </div>
+            <div class="form-group">
+              <label>Teléfono de Contacto</label>
+              <input type="text" class="form-control" id="cfg-telefono" placeholder="+57 300 000 0000">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SMTP / EMAIL CONFIG -->
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h2>📧 Configuración de Correo (SMTP)</h2>
+          <button class="btn btn-sm btn-outline" onclick="testSmtp()">🔌 Probar Conexión</button>
+        </div>
+        <div class="card-body" style="padding: 24px;">
+          <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 14px; margin-bottom: 20px; font-size: 0.9em;">
+            <strong>💡 Guía rápida para Gmail:</strong><br>
+            • Host: <code>smtp.gmail.com</code> | Puerto: <code>587</code><br>
+            • Usuario: tu correo de Gmail<br>
+            • Contraseña: usar una <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color:#6c5ce7; font-weight:600;">Contraseña de Aplicación</a> (no la contraseña normal)<br>
+            • Ir a Google → Seguridad → Verificación en 2 pasos → Contraseñas de aplicación
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label>Servidor SMTP (Host)</label>
+              <input type="text" class="form-control" id="cfg-smtp-host" placeholder="smtp.gmail.com">
+            </div>
+            <div class="form-group">
+              <label>Puerto SMTP</label>
+              <input type="number" class="form-control" id="cfg-smtp-port" placeholder="587">
+            </div>
+            <div class="form-group">
+              <label>Usuario / Email SMTP</label>
+              <input type="email" class="form-control" id="cfg-smtp-user" placeholder="tucorreo@gmail.com">
+            </div>
+            <div class="form-group">
+              <label>Contraseña SMTP</label>
+              <input type="password" class="form-control" id="cfg-smtp-pass" placeholder="Contraseña de aplicación">
+            </div>
+          </div>
+          <div id="smtpTestResult" style="margin-top: 12px;"></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <button class="btn btn-primary" onclick="guardarConfig()" style="padding: 14px 32px; font-size: 1em;">💾 Guardar Toda la Configuración</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== MODAL: NUEVO CLIENTE ==================== -->
+  <div class="modal-overlay" id="clienteModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>➕ Registrar Cliente</h3>
+        <button class="modal-close" onclick="closeModal('clienteModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Nombre Completo *</label>
+          <input type="text" class="form-control" id="cli-nombre" placeholder="Nombre completo">
+        </div>
+        <div class="form-group">
+          <label>Cédula / Documento *</label>
+          <input type="text" class="form-control" id="cli-cedula" placeholder="Número de cédula">
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="text" class="form-control" id="cli-telefono" placeholder="Número de teléfono">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" class="form-control" id="cli-email" placeholder="correo@ejemplo.com">
+        </div>
+        <div class="form-group">
+          <label>Dirección</label>
+          <input type="text" class="form-control" id="cli-direccion" placeholder="Dirección">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('clienteModal')">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarCliente()">💾 Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: VER BOLETAS DE CLIENTE ==================== -->
+  <div class="modal-overlay" id="clienteBoletasModal">
+    <div class="modal" style="max-width: 700px;">
+      <div class="modal-header">
+        <h3>🎟️ Boletas del Cliente</h3>
+        <button class="modal-close" onclick="closeModal('clienteBoletasModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="clienteBoletasContent">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = '';
+    let currentBoletasPage = 1;
+    let currentClientesPage = 1;
+    let searchTimeout = null;
+
+    // ==================== NAVIGATION ====================
+    function showSection(name) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+      document.getElementById(`section-${name}`).classList.add('active');
+      document.querySelector(`[data-section="${name}"]`).classList.add('active');
+
+      if (name === 'dashboard') loadDashboard();
+      if (name === 'boletas') loadBoletas();
+      if (name === 'clientes') loadClientes();
+      if (name === 'vender') loadBoletasDisponibles(1);
+      if (name === 'config') loadConfig();
+    }
+
+    // ==================== TOAST ====================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    // ==================== MODAL ====================
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    // ==================== FORMATTERS ====================
+    function formatMoney(n) {
+      return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(n);
+    }
+    function formatDate(d) {
+      if (!d) return '-';
+      return new Date(d).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+    function badgeEstado(estado) {
+      return `<span class="badge badge-${estado}">${estado.charAt(0).toUpperCase() + estado.slice(1)}</span>`;
+    }
+
+    // ==================== DASHBOARD ====================
+    async function loadDashboard() {
+      try {
+        const res = await fetch(`${API}/api/dashboard`);
+        const { data } = await res.json();
+
+        document.getElementById('m-total').textContent = data.totalBoletas.toLocaleString();
+        document.getElementById('m-vendidas').textContent = data.vendidas.toLocaleString();
+        document.getElementById('m-disponibles').textContent = data.disponibles.toLocaleString();
+        document.getElementById('m-reservadas').textContent = data.reservadas.toLocaleString();
+        document.getElementById('m-clientes').textContent = data.totalClientes.toLocaleString();
+        document.getElementById('m-ingresos').textContent = formatMoney(data.ingresoTotal);
+
+        // Progress bar
+        const pct = data.porcentajeVendidas;
+        document.getElementById('progressBar').style.width = `${pct}%`;
+        document.getElementById('progress-text').textContent = `${pct}%`;
+
+        // Top compradores
+        const topBody = document.getElementById('topBuyersBody');
+        if (data.topCompradores.length === 0) {
+          topBody.innerHTML = '<tr><td colspan="4" class="empty-state">No hay ventas aún</td></tr>';
+        } else {
+          topBody.innerHTML = data.topCompradores.map((c, i) => `
+            <tr>
+              <td>${i + 1}</td>
+              <td><strong>${c.nombre}</strong></td>
+              <td>${c.cedula}</td>
+              <td><strong>${c.cantidad}</strong></td>
+            </tr>
+          `).join('');
+        }
+
+        // Ventas por día
+        const salesBody = document.getElementById('salesByDayBody');
+        const salesEntries = Object.entries(data.ventasPorFecha).sort((a, b) => b[0].localeCompare(a[0]));
+        if (salesEntries.length === 0) {
+          salesBody.innerHTML = '<tr><td colspan="2" class="empty-state">No hay ventas aún</td></tr>';
+        } else {
+          salesBody.innerHTML = salesEntries.map(([fecha, count]) => `
+            <tr>
+              <td>${formatDate(fecha)}</td>
+              <td><strong>${count}</strong></td>
+            </tr>
+          `).join('');
+        }
+      } catch (error) {
+        showToast('Error cargando dashboard: ' + error.message, 'error');
+      }
+    }
+
+    // ==================== BOLETAS ====================
+    async function loadBoletas(page = 1) {
+      currentBoletasPage = page;
+      const search = document.getElementById('boletaSearch').value;
+      const estado = document.getElementById('boletaFilter').value;
+
+      try {
+        const params = new URLSearchParams({ page, limit: 50 });
+        if (search) params.set('search', search);
+        if (estado) params.set('estado', estado);
+
+        const res = await fetch(`${API}/api/boletas?${params}`);
+        const { data, pagination } = await res.json();
+
+        const tbody = document.getElementById('boletasTableBody');
+
+        if (data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="icon">🎟️</div>No se encontraron boletas</td></tr>';
+        } else {
+          tbody.innerHTML = data.map(b => `
+            <tr>
+              <td><strong>#${b.numero}</strong></td>
+              <td style="font-family: monospace; font-size: 0.85em;">${b.codigoBarras}</td>
+              <td>${badgeEstado(b.estado)}</td>
+              <td>${b.clienteId ? '<span style="color:var(--primary); cursor:pointer;" onclick="verBoletaCliente(\'' + b.numero + '\')">' + (b.clienteNombre || 'Ver cliente') + '</span>' : '<span style="color:var(--gray);">—</span>'}</td>
+              <td>${formatDate(b.fechaVenta)}</td>
+              <td>
+                <button class="btn btn-sm btn-outline" onclick="window.open('/imprimir/${b.numero}', '_blank')" title="Imprimir">🖨️</button>
+                ${b.estado !== 'disponible' ? `<button class="btn btn-sm btn-danger" onclick="liberarBoleta('${b.numero}')" title="Liberar">🔓</button>` : ''}
+              </td>
+            </tr>
+          `).join('');
+        }
+
+        // Paginación
+        renderPagination('boletasPagination', pagination, loadBoletas);
+      } catch (error) {
+        showToast('Error cargando boletas: ' + error.message, 'error');
+      }
+    }
+
+    function searchBoletas() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => loadBoletas(1), 300);
+    }
+    function filterBoletas() { loadBoletas(1); }
+
+    async function liberarBoleta(numero) {
+      if (!confirm(`¿Liberar la boleta #${numero}?`)) return;
+      try {
+        await fetch(`${API}/api/boletas/${numero}/liberar`, { method: 'PUT' });
+        showToast(`Boleta #${numero} liberada`, 'success');
+        loadBoletas(currentBoletasPage);
+      } catch (error) {
+        showToast('Error: ' + error.message, 'error');
+      }
+    }
+
+    async function verBoletaCliente(numero) {
+      try {
+        const res = await fetch(`${API}/api/boletas/${numero}`);
+        const { data } = await res.json();
+        if (data.cliente) {
+          const clienteRes = await fetch(`${API}/api/clientes/${data.clienteId}`);
+          const clienteData = await clienteRes.json();
+          mostrarBoletasCliente(clienteData.data);
+        }
+      } catch (error) {
+        showToast('Error: ' + error.message, 'error');
+      }
+    }
+
+    // ==================== CLIENTES ====================
+    async function loadClientes(page = 1) {
+      currentClientesPage = page;
+      const search = document.getElementById('clienteSearch').value;
+
+      try {
+        const params = new URLSearchParams({ page, limit: 50 });
+        if (search) params.set('search', search);
+
+        const res = await fetch(`${API}/api/clientes?${params}`);
+        const { data, pagination } = await res.json();
+
+        const tbody = document.getElementById('clientesTableBody');
+
+        if (data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="icon">👥</div>No se encontraron clientes</td></tr>';
+        } else {
+          tbody.innerHTML = data.map(c => `
+            <tr>
+              <td><strong>${c.nombre}</strong></td>
+              <td>${c.cedula}</td>
+              <td>${c.telefono || '-'}</td>
+              <td>${c.email || '-'}</td>
+              <td>
+                <span style="cursor:pointer; color:var(--primary); font-weight:600;" onclick='mostrarBoletasCliente(${JSON.stringify(c).replace(/'/g, "\\'")})'>
+                  ${c.totalBoletas} boleta(s)
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-danger" onclick="eliminarCliente('${c.id}', '${c.nombre}')" title="Eliminar">🗑️</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+
+        renderPagination('clientesPagination', pagination, loadClientes);
+      } catch (error) {
+        showToast('Error cargando clientes: ' + error.message, 'error');
+      }
+    }
+
+    function debounceSearchClientes() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => loadClientes(1), 300);
+    }
+
+    async function guardarCliente() {
+      const nombre = document.getElementById('cli-nombre').value.trim();
+      const cedula = document.getElementById('cli-cedula').value.trim();
+      const telefono = document.getElementById('cli-telefono').value.trim();
+      const email = document.getElementById('cli-email').value.trim();
+      const direccion = document.getElementById('cli-direccion').value.trim();
+
+      if (!nombre || !cedula) {
+        showToast('Nombre y cédula son obligatorios', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/api/clientes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, cedula, telefono, email, direccion }),
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+          showToast(data.error, 'error');
+          return;
+        }
+
+        showToast(`Cliente "${nombre}" registrado exitosamente`, 'success');
+        closeModal('clienteModal');
+        ['cli-nombre', 'cli-cedula', 'cli-telefono', 'cli-email', 'cli-direccion'].forEach(id => document.getElementById(id).value = '');
+        loadClientes();
+      } catch (error) {
+        showToast('Error: ' + error.message, 'error');
+      }
+    }
+
+    async function eliminarCliente(id, nombre) {
+      if (!confirm(`¿Eliminar al cliente "${nombre}"? Sus boletas serán liberadas.`)) return;
+      try {
+        const res = await fetch(`${API}/api/clientes/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        showToast(`Cliente eliminado. ${data.boletasLiberadas} boletas liberadas.`, 'success');
+        loadClientes(currentClientesPage);
+      } catch (error) {
+        showToast('Error: ' + error.message, 'error');
+      }
+    }
+
+    function mostrarBoletasCliente(cliente) {
+      const content = document.getElementById('clienteBoletasContent');
+      const boletas = cliente.boletas || [];
+      const nums = cliente.boletasNumeros || [];
+
+      content.innerHTML = `
+        <div style="margin-bottom: 16px;">
+          <p><strong>👤 ${cliente.nombre}</strong></p>
+          <p>📄 Cédula: ${cliente.cedula}</p>
+          <p>📞 Teléfono: ${cliente.telefono || '-'}</p>
+          <p>✉️ Email: ${cliente.email || '-'}</p>
+          <p>🎫 Total boletas: <strong>${boletas.length || nums.length}</strong></p>
+        </div>
+        <h4 style="margin-bottom: 10px;">Boletas asignadas:</h4>
+        ${(boletas.length > 0 || nums.length > 0) ? `
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            ${(boletas.length > 0 ? boletas : nums).map(b => {
+              const num = typeof b === 'string' ? b : b.numero;
+              return `<span style="background: var(--primary); color: white; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.9em;">
+                #${num}
+                <span style="cursor:pointer; margin-left:4px;" onclick="window.open('/imprimir/${num}', '_blank')">🖨️</span>
+              </span>`;
+            }).join('')}
+          </div>
+        ` : '<p style="color: var(--gray);">No tiene boletas asignadas</p>'}
+      `;
+
+      openModal('clienteBoletasModal');
+    }
+
+    // ==================== VENDER ====================
+    let ventaBoletasSeleccionadas = new Set();
+    let ventaBoletasPage = 1;
+    let ventaBoletasSearchTimeout = null;
+
+    async function loadBoletasDisponibles(page = 1) {
+      ventaBoletasPage = page;
+      const search = document.getElementById('ventaBoletaSearch').value.trim();
+      const grid = document.getElementById('ventaBoletasGrid');
+
+      try {
+        const params = new URLSearchParams({ page, limit: 100, estado: 'disponible' });
+        if (search) params.set('search', search);
+
+        const res = await fetch(`${API}/api/boletas?${params}`);
+        const { data, pagination } = await res.json();
+
+        document.getElementById('ventaGridInfo').textContent = `Mostrando ${data.length} de ${pagination.total} boletas disponibles`;
+        document.getElementById('ventaBoletasCount').textContent = `${pagination.total} disponibles`;
+
+        if (data.length === 0) {
+          grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--gray);">No se encontraron boletas disponibles</div>';
+        } else {
+          grid.innerHTML = data.map(b => {
+            const isSelected = ventaBoletasSeleccionadas.has(b.numero);
+            return `<div class="boleta-chip ${isSelected ? 'selected' : ''}" 
+                         data-numero="${b.numero}"
+                         onclick="toggleBoletaSeleccion('${b.numero}')">
+              #${b.numero}
+            </div>`;
+          }).join('');
+        }
+
+        // Paginación de boletas disponibles
+        renderVentaBoletasPagination(pagination);
+      } catch (error) {
+        grid.innerHTML = '<div style="color:red; text-align:center; padding:20px;">Error cargando boletas</div>';
+      }
+    }
+
+    function renderVentaBoletasPagination(pagination) {
+      const container = document.getElementById('ventaBoletasPagination');
+      const { page, totalPages, total } = pagination;
+      if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+      let html = `<button ${page <= 1 ? 'disabled' : ''} onclick="loadBoletasDisponibles(${page - 1})">◀</button>`;
+      const start = Math.max(1, page - 3);
+      const end = Math.min(totalPages, page + 3);
+      if (start > 1) html += `<button onclick="loadBoletasDisponibles(1)">1</button><span>...</span>`;
+      for (let i = start; i <= end; i++) {
+        html += `<button class="${i === page ? 'active' : ''}" onclick="loadBoletasDisponibles(${i})">${i}</button>`;
+      }
+      if (end < totalPages) html += `<span>...</span><button onclick="loadBoletasDisponibles(${totalPages})">${totalPages}</button>`;
+      html += `<button ${page >= totalPages ? 'disabled' : ''} onclick="loadBoletasDisponibles(${page + 1})">▶</button>`;
+      container.innerHTML = html;
+    }
+
+    function toggleBoletaSeleccion(numero) {
+      if (ventaBoletasSeleccionadas.has(numero)) {
+        ventaBoletasSeleccionadas.delete(numero);
+      } else {
+        ventaBoletasSeleccionadas.add(numero);
+      }
+      // Toggle visual en el chip
+      const chip = document.querySelector(`.boleta-chip[data-numero="${numero}"]`);
+      if (chip) chip.classList.toggle('selected');
+
+      actualizarBarraSeleccionadas();
+      actualizarResumenVenta();
+    }
+
+    function quitarBoletaSeleccion(numero) {
+      ventaBoletasSeleccionadas.delete(numero);
+      const chip = document.querySelector(`.boleta-chip[data-numero="${numero}"]`);
+      if (chip) chip.classList.remove('selected');
+      actualizarBarraSeleccionadas();
+      actualizarResumenVenta();
+    }
+
+    function actualizarBarraSeleccionadas() {
+      const bar = document.getElementById('ventaSelectedBar');
+      const tags = document.getElementById('ventaSelectedTags');
+      const countEl = document.getElementById('ventaSelectedCount');
+      const count = ventaBoletasSeleccionadas.size;
+
+      countEl.textContent = `${count} seleccionada(s)`;
+
+      if (count === 0) {
+        bar.style.display = 'none';
+        return;
+      }
+
+      bar.style.display = 'flex';
+      const nums = Array.from(ventaBoletasSeleccionadas).sort();
+      tags.innerHTML = nums.map(n => `
+        <span class="selected-tag">
+          #${n}
+          <span class="remove" onclick="event.stopPropagation(); quitarBoletaSeleccion('${n}')">&times;</span>
+        </span>
+      `).join('');
+    }
+
+    function limpiarSeleccionBoletas() {
+      ventaBoletasSeleccionadas.clear();
+      document.querySelectorAll('.boleta-chip.selected').forEach(el => el.classList.remove('selected'));
+      actualizarBarraSeleccionadas();
+      actualizarResumenVenta();
+    }
+
+    function buscarBoletaDisponible() {
+      clearTimeout(ventaBoletasSearchTimeout);
+      ventaBoletasSearchTimeout = setTimeout(() => loadBoletasDisponibles(1), 300);
+    }
+
+    // --- Cliente ---
+    async function buscarClienteVenta() {
+      const query = document.getElementById('ventaClienteSearch').value.trim();
+      const container = document.getElementById('ventaClienteResults');
+
+      if (query.length < 2) {
+        container.innerHTML = '';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/api/clientes?search=${encodeURIComponent(query)}`);
+        const { data } = await res.json();
+
+        if (data.length === 0) {
+          container.innerHTML = '<p style="padding: 10px; color: var(--gray);">No se encontraron clientes. Regístrelo primero.</p>';
+          return;
+        }
+
+        container.innerHTML = data.map(c => `
+          <div style="padding: 10px; border: 1px solid var(--light); border-radius: 6px; margin-bottom: 4px; cursor: pointer; transition: background 0.2s;"
+               onmouseover="this.style.background='#f0f0ff'"
+               onmouseout="this.style.background='white'"
+               onclick="seleccionarClienteVenta('${c.id}', '${c.nombre} - ${c.cedula}')">
+            <strong>${c.nombre}</strong> — ${c.cedula} — ${c.totalBoletas} boleta(s)
+          </div>
+        `).join('');
+      } catch (error) {
+        container.innerHTML = '<p style="color: red;">Error buscando</p>';
+      }
+    }
+
+    function seleccionarClienteVenta(id, nombre) {
+      document.getElementById('ventaClienteId').value = id;
+      document.getElementById('ventaClienteNombre').textContent = nombre;
+      document.getElementById('ventaClienteSelected').style.display = 'block';
+      document.getElementById('ventaClienteResults').innerHTML = '';
+      document.getElementById('ventaClienteSearch').value = '';
+      document.getElementById('ventaClienteSearch').style.display = 'none';
+      actualizarResumenVenta();
+    }
+
+    function deseleccionarCliente() {
+      document.getElementById('ventaClienteId').value = '';
+      document.getElementById('ventaClienteNombre').textContent = '';
+      document.getElementById('ventaClienteSelected').style.display = 'none';
+      document.getElementById('ventaClienteSearch').style.display = 'block';
+      document.getElementById('ventaClienteSearch').value = '';
+      actualizarResumenVenta();
+    }
+
+    function actualizarResumenVenta() {
+      const resumen = document.getElementById('ventaResumen');
+      const numBoletas = ventaBoletasSeleccionadas.size;
+      const clienteNombre = document.getElementById('ventaClienteNombre').textContent;
+      const clienteId = document.getElementById('ventaClienteId').value;
+
+      if (numBoletas === 0 && !clienteId) {
+        resumen.innerHTML = '<span style="color:var(--gray);">Seleccione boletas y un cliente para ver el resumen.</span>';
+        resumen.style.background = '#f8f9fa';
+        return;
+      }
+
+      let html = '<div style="display:flex; flex-direction:column; gap:6px;">';
+      html += `<div>🎟️ <strong>Boletas:</strong> ${numBoletas > 0 ? numBoletas + ' seleccionada(s) — ' + Array.from(ventaBoletasSeleccionadas).sort().map(n => '#' + n).join(', ') : '<span style="color:var(--danger);">Ninguna seleccionada</span>'}</div>`;
+      html += `<div>👤 <strong>Cliente:</strong> ${clienteId ? clienteNombre : '<span style="color:var(--danger);">Ninguno seleccionado</span>'}</div>`;
+      html += '</div>';
+
+      resumen.innerHTML = html;
+      resumen.style.background = (numBoletas > 0 && clienteId) ? '#e8f8f5' : '#fff5f5';
+    }
+
+    async function realizarVenta() {
+      const clienteId = document.getElementById('ventaClienteId').value;
+      const numeros = Array.from(ventaBoletasSeleccionadas);
+
+      if (numeros.length === 0) {
+        showToast('Seleccione al menos una boleta', 'error');
+        return;
+      }
+      if (!clienteId) {
+        showToast('Seleccione un cliente', 'error');
+        return;
+      }
+
+      if (!confirm(`¿Confirmar venta de ${numeros.length} boleta(s)?`)) return;
+
+      try {
+        if (numeros.length === 1) {
+          const res = await fetch(`${API}/api/boletas/${numeros[0]}/vender`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ clienteId }),
+          });
+          const data = await res.json();
+          if (!data.success) {
+            showToast(data.error, 'error');
+            return;
+          }
+          showToast(`✅ Boleta #${numeros[0]} vendida exitosamente`, 'success');
+          if (data.email && data.email.success) {
+            showToast(`📧 Correo enviado al cliente`, 'success');
+          } else if (data.email && !data.email.success) {
+            showToast(`⚠️ ${data.email.message}`, 'info');
+          }
+        } else {
+          const res = await fetch(`${API}/api/boletas/vender-lote`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ numeros, clienteId }),
+          });
+          const data = await res.json();
+          if (!data.success) {
+            showToast(data.error, 'error');
+            return;
+          }
+          showToast(`✅ ${data.data.vendidas.length} boletas vendidas exitosamente`, 'success');
+          if (data.data.errores.length > 0) {
+            showToast(`⚠️ ${data.data.errores.length} boleta(s) con error`, 'error');
+          }
+          if (data.email && data.email.success) {
+            showToast(`📧 Correo enviado al cliente con ${data.data.vendidas.length} boleta(s)`, 'success');
+          } else if (data.email && !data.email.success) {
+            showToast(`⚠️ ${data.email.message}`, 'info');
+          }
+        }
+
+        // Limpiar todo
+        ventaBoletasSeleccionadas.clear();
+        actualizarBarraSeleccionadas();
+        deseleccionarCliente();
+        actualizarResumenVenta();
+        loadBoletasDisponibles(ventaBoletasPage);
+      } catch (error) {
+        showToast('Error: ' + error.message, 'error');
+      }
+    }
+
+    // ==================== CONFIGURACIÓN ====================
+    async function loadConfig() {
+      try {
+        const res = await fetch(`${API}/api/dashboard/config`);
+        const { data } = await res.json();
+
+        document.getElementById('cfg-nombre').value = data.nombreRifa || '';
+        document.getElementById('cfg-precio').value = data.precioBoleta || '';
+        document.getElementById('cfg-descripcion').value = data.descripcion || '';
+        document.getElementById('cfg-premio').value = data.premio || '';
+        document.getElementById('cfg-fecha').value = data.fechaSorteo || '';
+        document.getElementById('cfg-organizador').value = data.organizador || '';
+        document.getElementById('cfg-telefono').value = data.telefono || '';
+        document.getElementById('cfg-smtp-host').value = data.smtpHost || '';
+        document.getElementById('cfg-smtp-port').value = data.smtpPort || 587;
+        document.getElementById('cfg-smtp-user').value = data.smtpUser || '';
+        document.getElementById('cfg-smtp-pass').value = data.smtpPass || '';
+      } catch (error) {
+        showToast('Error cargando config: ' + error.message, 'error');
+      }
+    }
+
+    async function guardarConfig() {
+      try {
+        const body = {
+          nombreRifa: document.getElementById('cfg-nombre').value,
+          precioBoleta: parseFloat(document.getElementById('cfg-precio').value) || 0,
+          descripcion: document.getElementById('cfg-descripcion').value,
+          premio: document.getElementById('cfg-premio').value,
+          fechaSorteo: document.getElementById('cfg-fecha').value,
+          organizador: document.getElementById('cfg-organizador').value,
+          telefono: document.getElementById('cfg-telefono').value,
+          smtpHost: document.getElementById('cfg-smtp-host').value,
+          smtpPort: parseInt(document.getElementById('cfg-smtp-port').value) || 587,
+          smtpUser: document.getElementById('cfg-smtp-user').value,
+          smtpPass: document.getElementById('cfg-smtp-pass').value,
+        };
+
+        await fetch(`${API}/api/dashboard/config`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+
+        showToast('✅ Configuración guardada (incluye SMTP)', 'success');
+      } catch (error) {
+        showToast('Error: ' + error.message, 'error');
+      }
+    }
+
+    async function testSmtp() {
+      const resultDiv = document.getElementById('smtpTestResult');
+      resultDiv.innerHTML = '<p style="color: var(--gray);">🔄 Probando conexión SMTP...</p>';
+
+      // Guardar primero la config actual
+      await guardarConfig();
+
+      try {
+        const res = await fetch(`${API}/api/dashboard/test-email`, { method: 'POST' });
+        const data = await res.json();
+
+        if (data.success) {
+          resultDiv.innerHTML = '<p style="color: var(--success); font-weight:600; background:#e8f8f5; padding:12px; border-radius:8px;">✅ ' + data.message + '</p>';
+          showToast('Conexión SMTP exitosa', 'success');
+        } else {
+          resultDiv.innerHTML = '<p style="color: var(--danger); font-weight:600; background:#fdecea; padding:12px; border-radius:8px;">❌ ' + data.message + '</p>';
+          showToast('Error SMTP: ' + data.message, 'error');
+        }
+      } catch (error) {
+        resultDiv.innerHTML = '<p style="color: var(--danger);">❌ Error: ' + error.message + '</p>';
+      }
+    }
+
+    // ==================== PAGINATION HELPER ====================
+    function renderPagination(containerId, pagination, loadFn) {
+      const container = document.getElementById(containerId);
+      const { page, totalPages, total } = pagination;
+
+      if (totalPages <= 1) {
+        container.innerHTML = `<span>${total} registro(s)</span>`;
+        return;
+      }
+
+      let html = '';
+      html += `<button ${page <= 1 ? 'disabled' : ''} onclick="${loadFn.name}(${page - 1})">◀ Ant</button>`;
+
+      const start = Math.max(1, page - 2);
+      const end = Math.min(totalPages, page + 2);
+
+      if (start > 1) html += `<button onclick="${loadFn.name}(1)">1</button><span>...</span>`;
+
+      for (let i = start; i <= end; i++) {
+        html += `<button class="${i === page ? 'active' : ''}" onclick="${loadFn.name}(${i})">${i}</button>`;
+      }
+
+      if (end < totalPages) html += `<span>...</span><button onclick="${loadFn.name}(${totalPages})">${totalPages}</button>`;
+
+      html += `<button ${page >= totalPages ? 'disabled' : ''} onclick="${loadFn.name}(${page + 1})">Sig ▶</button>`;
+      html += `<span style="margin-left: 10px;">${total} registro(s)</span>`;
+
+      container.innerHTML = html;
+    }
+
+    // ==================== INIT ====================
+    document.addEventListener('DOMContentLoaded', () => {
+      loadDashboard();
+    });
+  </script>
+</body>
+</html>

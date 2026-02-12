@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🖨️ Imprimir Boleta</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .no-print {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    .no-print button {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-print { background: #6c5ce7; color: white; }
+    .btn-print:hover { background: #5a4bd1; }
+    .btn-back { background: #dfe6e9; color: #2d3436; }
+
+    /* ===== BOLETA IMPRIMIBLE ===== */
+    .print-ticket {
+      background: white;
+      width: 380px;
+      border: 3px solid #2d3436;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .print-header {
+      background: #2d3436;
+      color: white;
+      text-align: center;
+      padding: 16px 12px;
+    }
+    .print-header h1 {
+      font-size: 1.4em;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .print-header .desc {
+      font-size: 0.85em;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    .print-number {
+      text-align: center;
+      padding: 16px;
+      font-size: 2.8em;
+      font-weight: 900;
+      letter-spacing: 8px;
+      color: #2d3436;
+      border-bottom: 2px dashed #ccc;
+    }
+
+    .print-info {
+      padding: 14px 20px;
+      font-size: 0.85em;
+    }
+    .print-info .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+    .print-info .label { color: #636e72; }
+    .print-info .value { font-weight: 600; }
+
+    .print-cliente {
+      background: #f8f9fa;
+      margin: 0 12px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.85em;
+    }
+    .print-cliente h4 { color: #6c5ce7; margin-bottom: 6px; }
+
+    .print-codes {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      border-top: 2px dashed #ccc;
+      margin-top: 12px;
+    }
+    .print-codes .qr-section {
+      text-align: center;
+    }
+    .print-codes .qr-section img {
+      width: 120px;
+      height: 120px;
+    }
+    .print-codes .qr-section .caption {
+      font-size: 0.7em;
+      color: #636e72;
+      margin-top: 4px;
+    }
+    .print-codes .barcode-section {
+      text-align: center;
+    }
+    .print-codes .barcode-section svg {
+      height: 60px;
+    }
+    .print-codes .barcode-section .caption {
+      font-size: 0.7em;
+      color: #636e72;
+      margin-top: 2px;
+    }
+
+    .print-footer {
+      text-align: center;
+      padding: 10px;
+      font-size: 0.75em;
+      color: #636e72;
+      border-top: 1px solid #eee;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #636e72;
+    }
+
+    /* ===== PRINT STYLES ===== */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+      .no-print { display: none !important; }
+      .print-ticket {
+        border: 2px solid #000;
+        width: 350px;
+        margin: 0 auto;
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="no-print">
+    <button class="btn-back" onclick="window.location.href='/admin'">🏠 Dashboard</button>
+    <button class="btn-back" onclick="window.history.length > 1 ? window.history.back() : window.location.href='/admin'">← Volver</button>
+    <button class="btn-print" onclick="window.print()">🖨️ Imprimir Boleta</button>
+  </div>
+
+  <div class="print-ticket" id="printTicket">
+    <div class="loading" id="loadingState">Cargando boleta...</div>
+  </div>
+
+  <script>
+    const numero = window.location.pathname.split('/').pop();
+
+    async function loadPrintData() {
+      try {
+        const res = await fetch(`/api/print/${numero}`);
+        const { success, data, error } = await res.json();
+
+        if (!success) {
+          document.getElementById('printTicket').innerHTML = `<div class="loading" style="color:red;">❌ ${error}</div>`;
+          return;
+        }
+
+        const { boleta, cliente, config, qrDataUrl, codigoBarras } = data;
+
+        let html = `
+          <div class="print-header">
+            <h1>${config.nombreRifa || 'RIFA'}</h1>
+            ${config.descripcion ? `<div class="desc">${config.descripcion}</div>` : ''}
+            ${config.premio ? `<div class="desc" style="font-weight:700; margin-top:4px;">🏆 ${config.premio}</div>` : ''}
+          </div>
+
+          <div class="print-number">#${boleta.numero}</div>
+
+          <div class="print-info">
+            <div class="row">
+              <span class="label">Estado:</span>
+              <span class="value">${boleta.estado.toUpperCase()}</span>
+            </div>
+            ${config.precioBoleta ? `
+              <div class="row">
+                <span class="label">Valor:</span>
+                <span class="value">${new Intl.NumberFormat('es-CO', {style:'currency',currency:'COP',minimumFractionDigits:0}).format(config.precioBoleta)}</span>
+              </div>
+            ` : ''}
+            ${config.fechaSorteo ? `
+              <div class="row">
+                <span class="label">Sorteo:</span>
+                <span class="value">${new Date(config.fechaSorteo).toLocaleDateString('es-CO')}</span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+
+        if (cliente) {
+          html += `
+            <div class="print-cliente">
+              <h4>Comprador</h4>
+              <p><strong>${cliente.nombre}</strong></p>
+              <p>CC: ${cliente.cedula}</p>
+              ${cliente.telefono ? `<p>Tel: ${cliente.telefono}</p>` : ''}
+            </div>
+          `;
+        }
+
+        html += `
+          <div class="print-codes">
+            <div class="qr-section">
+              <img src="${qrDataUrl}" alt="QR Code">
+              <div class="caption">Escanea para ver datos</div>
+            </div>
+            <div class="barcode-section">
+              <svg id="barcodeSvg"></svg>
+              <div class="caption">${codigoBarras}</div>
+            </div>
+          </div>
+
+          <div class="print-footer">
+            ${config.organizador ? `Organiza: ${config.organizador}` : ''}
+            ${config.telefono ? ` | Tel: ${config.telefono}` : ''}
+            <br>Conserve esta boleta como comprobante
+          </div>
+        `;
+
+        document.getElementById('printTicket').innerHTML = html;
+
+        // Generar código de barras
+        setTimeout(() => {
+          try {
+            JsBarcode('#barcodeSvg', codigoBarras, {
+              format: 'CODE128',
+              width: 1.5,
+              height: 50,
+              displayValue: false,
+              margin: 0,
+            });
+          } catch (e) {
+            console.error('Error generando barcode:', e);
+          }
+        }, 100);
+      } catch (err) {
+        document.getElementById('printTicket').innerHTML = `<div class="loading" style="color:red;">❌ Error: ${err.message}</div>`;
+      }
+    }
+
+    loadPrintData();
+  </script>
+</body>
+</html>
