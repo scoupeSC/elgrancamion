@@ -55,4 +55,17 @@ app.listen(PORT, () => {
   console.log(`🔌  API:           http://localhost:${PORT}/api`);
   console.log('🎫 ═══════════════════════════════════════════════');
   console.log('');
+
+  // Auto-ping para mantener el servicio despierto en Render (cada 14 min)
+  if (process.env.RENDER_EXTERNAL_URL) {
+    setInterval(() => {
+      const https = require('https');
+      https.get(`${process.env.RENDER_EXTERNAL_URL}/api/health`, (res) => {
+        console.log(`🏓 Auto-ping: ${res.statusCode}`);
+      }).on('error', (err) => {
+        console.log('🏓 Auto-ping error:', err.message);
+      });
+    }, 14 * 60 * 1000); // Cada 14 minutos
+    console.log('🏓 Auto-ping activado (cada 14 min)');
+  }
 });
