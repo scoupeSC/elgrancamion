@@ -12,16 +12,15 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      padding: 20px;
-      gap: 16px;
+      padding: 16px;
+      gap: 14px;
     }
     .nav-bar {
       display: flex;
       gap: 10px;
       width: 100%;
-      max-width: 480px;
+      max-width: 520px;
     }
     .nav-bar a {
       padding: 10px 20px;
@@ -34,10 +33,11 @@
       transition: background 0.3s;
     }
     .nav-bar a:hover { background: white; }
+
     .ticket-card {
       background: white;
       border-radius: 20px;
-      max-width: 480px;
+      max-width: 520px;
       width: 100%;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
       overflow: hidden;
@@ -46,20 +46,22 @@
       background: linear-gradient(135deg, #6c5ce7, #a29bfe);
       color: white;
       text-align: center;
-      padding: 30px 20px;
+      padding: 24px 20px;
     }
-    .ticket-header h1 { font-size: 1.8em; margin-bottom: 4px; }
-    .ticket-header .subtitle { opacity: 0.9; font-size: 0.95em; }
+    .ticket-header h1 { font-size: 1.6em; margin-bottom: 4px; }
+    .ticket-header .subtitle { opacity: 0.9; font-size: 0.9em; }
+    .ticket-header .premio { margin-top: 8px; font-size: 1.1em; font-weight: 700; }
+
     .ticket-number {
       font-size: 3em;
       font-weight: 900;
       text-align: center;
-      padding: 20px;
+      padding: 16px;
       color: #6c5ce7;
       background: #f8f9ff;
       letter-spacing: 6px;
     }
-    .ticket-body { padding: 24px; }
+    .ticket-body { padding: 20px; }
     .info-row {
       display: flex;
       justify-content: space-between;
@@ -76,6 +78,7 @@
     }
     .badge-vendida { background: #fdecea; color: #d63031; }
     .badge-disponible { background: #e8f8f5; color: #00b894; }
+    .badge-reservada { background: #ffeaa7; color: #d68910; }
 
     .cliente-section {
       background: #f0f0ff;
@@ -86,15 +89,116 @@
     .cliente-section h3 { color: #6c5ce7; margin-bottom: 12px; }
     .cliente-section p { margin: 4px 0; font-size: 0.95em; }
 
-    /* Formulario de registro */
-    .register-section {
-      margin-top: 20px;
-      padding: 20px;
-      background: #fff5f5;
-      border-radius: 12px;
-      border: 2px dashed #d63031;
+    /* Sección de compra */
+    .selected-boletas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+      min-height: 36px;
+      padding: 10px;
+      background: #f0f7ff;
+      border-radius: 10px;
+      border: 2px solid #6c5ce7;
     }
-    .register-section h3 { color: #d63031; margin-bottom: 12px; }
+    .selected-boletas .chip {
+      background: #6c5ce7;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 0.85em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      animation: chipIn 0.2s ease;
+    }
+    .selected-boletas .chip.preselected { background: #00b894; }
+    .selected-boletas .chip .remove {
+      cursor: pointer;
+      font-size: 1.1em;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .selected-boletas .chip .remove:hover { opacity: 1; }
+    @keyframes chipIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .selected-count {
+      font-size: 0.85em;
+      color: #6c5ce7;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .boleta-search-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .boleta-search-row input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 2px solid #dfe6e9;
+      border-radius: 8px;
+      font-size: 0.95em;
+    }
+    .boleta-search-row input:focus { outline: none; border-color: #6c5ce7; }
+    .boleta-search-row button {
+      padding: 10px 16px;
+      background: #6c5ce7;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .boleta-search-row button:hover { background: #5a4bd1; }
+
+    .boleta-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      max-height: 240px;
+      overflow-y: auto;
+      margin-bottom: 14px;
+      padding: 4px;
+    }
+    .boleta-grid .boleta-chip {
+      padding: 8px 4px;
+      text-align: center;
+      border-radius: 8px;
+      font-size: 0.78em;
+      font-weight: 700;
+      cursor: pointer;
+      border: 2px solid #dfe6e9;
+      background: white;
+      transition: all 0.15s;
+      font-family: monospace;
+    }
+    .boleta-grid .boleta-chip:hover { border-color: #6c5ce7; background: #f8f7ff; }
+    .boleta-grid .boleta-chip.selected { background: #6c5ce7; color: white; border-color: #6c5ce7; }
+    .boleta-grid .boleta-chip.preselected { background: #00b894; color: white; border-color: #00b894; }
+
+    .grid-pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .grid-pagination button {
+      padding: 6px 14px;
+      background: #6c5ce7;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85em;
+    }
+    .grid-pagination button:disabled { background: #b2bec3; cursor: not-allowed; }
+    .grid-pagination span { font-size: 0.85em; color: #636e72; }
+
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.85em; color: #636e72; }
     .form-control {
@@ -105,24 +209,26 @@
       font-size: 0.95em;
     }
     .form-control:focus { outline: none; border-color: #6c5ce7; }
+
     .btn {
-      padding: 12px 24px;
+      padding: 14px 24px;
       border: none;
-      border-radius: 8px;
-      font-weight: 600;
+      border-radius: 10px;
+      font-weight: 700;
       cursor: pointer;
       width: 100%;
-      font-size: 1em;
+      font-size: 1.05em;
+      transition: all 0.2s;
     }
-    .btn-primary { background: #6c5ce7; color: white; }
-    .btn-primary:hover { background: #5a4bd1; }
-
-    .loading {
-      text-align: center;
-      padding: 60px 20px;
-      color: #636e72;
+    .btn-comprar {
+      background: linear-gradient(135deg, #00b894, #00cec9);
+      color: white;
       font-size: 1.1em;
     }
+    .btn-comprar:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(0,184,148,0.4); }
+    .btn-comprar:disabled { background: #b2bec3; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .loading { text-align: center; padding: 60px 20px; color: #636e72; font-size: 1.1em; }
     .error { color: #d63031; text-align: center; padding: 20px; }
     .success-msg {
       background: #e8f8f5;
@@ -133,6 +239,24 @@
       font-weight: 600;
       margin-top: 16px;
     }
+    .separator { border: none; border-top: 2px dashed #dfe6e9; margin: 18px 0; }
+    .organizador-info { margin-top: 20px; text-align: center; color: #636e72; font-size: 0.85em; }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      border-radius: 10px;
+      color: white;
+      font-weight: 600;
+      z-index: 999;
+      animation: fadeInUp 0.3s ease;
+    }
+    .toast-success { background: #00b894; }
+    .toast-error { background: #d63031; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
   </style>
 </head>
 <body>
@@ -147,12 +271,23 @@
   </div>
 
   <script>
-    const numero = window.location.pathname.split('/').pop();
+    const numeroBoleta = window.location.pathname.split('/').pop();
+    let selectedBoletas = new Set();
+    let availableBoletas = [];
+    let filteredBoletas = [];
+    let gridPage = 1;
+    const GRID_PAGE_SIZE = 50;
+    let config = {};
 
     async function loadBoleta() {
       try {
-        const res = await fetch(`/api/boletas/${numero}`);
-        const { success, data, error } = await res.json();
+        const [boletaRes, configRes] = await Promise.all([
+          fetch(`/api/boletas/${numeroBoleta}`),
+          fetch('/api/dashboard/config')
+        ]);
+        const { success, data, error } = await boletaRes.json();
+        const configData = await configRes.json();
+        config = configData.data || {};
 
         if (!success) {
           document.getElementById('ticketCard').innerHTML = `
@@ -163,80 +298,11 @@
           return;
         }
 
-        // Cargar config
-        const configRes = await fetch('/api/dashboard/config');
-        const configData = await configRes.json();
-        const config = configData.data;
-
-        let html = `
-          <div class="ticket-header">
-            <h1>🎫 ${config.nombreRifa || 'Rifa'}</h1>
-            <div class="subtitle">${config.descripcion || ''}</div>
-            ${config.premio ? `<div style="margin-top:8px; font-size:1.1em; font-weight:700;">🏆 Premio: ${config.premio}</div>` : ''}
-          </div>
-          <div class="ticket-number">#${data.numero}</div>
-          <div class="ticket-body">
-            <div class="info-row">
-              <span class="label">Estado</span>
-              <span class="badge-estado badge-${data.estado}">${data.estado.charAt(0).toUpperCase() + data.estado.slice(1)}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Código</span>
-              <span class="value" style="font-family:monospace;">${data.codigoBarras}</span>
-            </div>
-            ${config.fechaSorteo ? `<div class="info-row"><span class="label">Fecha Sorteo</span><span class="value">${new Date(config.fechaSorteo).toLocaleDateString('es-CO')}</span></div>` : ''}
-            ${config.precioBoleta ? `<div class="info-row"><span class="label">Precio</span><span class="value">${new Intl.NumberFormat('es-CO', {style:'currency',currency:'COP',minimumFractionDigits:0}).format(config.precioBoleta)}</span></div>` : ''}
-        `;
-
-        if (data.cliente) {
-          html += `
-            <div class="cliente-section">
-              <h3>👤 Datos del Comprador</h3>
-              <p><strong>Nombre:</strong> ${data.cliente.nombre}</p>
-              <p><strong>Cédula:</strong> ${data.cliente.cedula}</p>
-              ${data.cliente.telefono ? `<p><strong>Teléfono:</strong> ${data.cliente.telefono}</p>` : ''}
-              ${data.cliente.email ? `<p><strong>Email:</strong> ${data.cliente.email}</p>` : ''}
-              <p style="margin-top: 8px; color: #636e72; font-size: 0.85em;">
-                Comprada el: ${data.fechaVenta ? new Date(data.fechaVenta).toLocaleString('es-CO') : '-'}
-              </p>
-            </div>
-          `;
+        if (data.estado === 'vendida' && data.cliente) {
+          renderBoletaVendida(data);
         } else {
-          html += `
-            <div class="register-section">
-              <h3>🛒 ¡Esta boleta está disponible!</h3>
-              <p style="margin-bottom: 16px; color: #636e72;">Complete sus datos para registrarse como comprador</p>
-
-              <div class="form-group">
-                <label>Nombre Completo *</label>
-                <input type="text" class="form-control" id="reg-nombre" placeholder="Su nombre completo">
-              </div>
-              <div class="form-group">
-                <label>Cédula / Documento *</label>
-                <input type="text" class="form-control" id="reg-cedula" placeholder="Número de documento">
-              </div>
-              <div class="form-group">
-                <label>Teléfono</label>
-                <input type="text" class="form-control" id="reg-telefono" placeholder="Número de teléfono">
-              </div>
-              <div class="form-group">
-                <label>Email</label>
-                <input type="email" class="form-control" id="reg-email" placeholder="correo@ejemplo.com">
-              </div>
-              <button class="btn btn-primary" onclick="registrarCompra()">
-                🎫 Registrar Compra
-              </button>
-              <div id="registerResult"></div>
-            </div>
-          `;
+          renderBoletaDisponible(data);
         }
-
-        html += `
-            ${config.organizador ? `<p style="margin-top:20px; text-align:center; color:#636e72; font-size:0.85em;">Organiza: ${config.organizador} ${config.telefono ? '| Tel: ' + config.telefono : ''}</p>` : ''}
-          </div>
-        `;
-
-        document.getElementById('ticketCard').innerHTML = html;
       } catch (err) {
         document.getElementById('ticketCard').innerHTML = `
           <div class="error">
@@ -246,21 +312,244 @@
       }
     }
 
-    async function registrarCompra() {
+    function renderBoletaVendida(data) {
+      const precio = config.precioBoleta
+        ? new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(config.precioBoleta)
+        : '';
+
+      document.getElementById('ticketCard').innerHTML = `
+        <div class="ticket-header">
+          <h1>🎫 ${config.nombreRifa || 'Rifa'}</h1>
+          <div class="subtitle">${config.descripcion || ''}</div>
+          ${config.premio ? `<div class="premio">🏆 Premio: ${config.premio}</div>` : ''}
+        </div>
+        <div class="ticket-number">#${data.numero}</div>
+        <div class="ticket-body">
+          <div class="info-row">
+            <span class="label">Estado</span>
+            <span class="badge-estado badge-vendida">Vendida</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Código</span>
+            <span class="value" style="font-family:monospace;">${data.codigoBarras}</span>
+          </div>
+          ${config.fechaSorteo ? `<div class="info-row"><span class="label">Fecha Sorteo</span><span class="value">${new Date(config.fechaSorteo).toLocaleDateString('es-CO')}</span></div>` : ''}
+          ${precio ? `<div class="info-row"><span class="label">Precio</span><span class="value">${precio}</span></div>` : ''}
+          <div class="cliente-section">
+            <h3>👤 Datos del Comprador</h3>
+            <p><strong>Nombre:</strong> ${data.cliente.nombre}</p>
+            <p><strong>Cédula:</strong> ${data.cliente.cedula}</p>
+            ${data.cliente.telefono ? `<p><strong>Teléfono:</strong> ${data.cliente.telefono}</p>` : ''}
+            ${data.cliente.email ? `<p><strong>Email:</strong> ${data.cliente.email}</p>` : ''}
+            <p style="margin-top: 8px; color: #636e72; font-size: 0.85em;">
+              Comprada el: ${data.fechaVenta ? new Date(data.fechaVenta).toLocaleString('es-CO') : '-'}
+            </p>
+          </div>
+          ${config.organizador ? `<p class="organizador-info">Organiza: ${config.organizador} ${config.telefono ? '| Tel: ' + config.telefono : ''}</p>` : ''}
+        </div>
+      `;
+    }
+
+    async function renderBoletaDisponible(data) {
+      const precio = config.precioBoleta
+        ? new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(config.precioBoleta)
+        : '';
+      const precioNum = config.precioBoleta || 0;
+
+      selectedBoletas.add(numeroBoleta);
+      await loadAvailableBoletas();
+
+      document.getElementById('ticketCard').innerHTML = `
+        <div class="ticket-header">
+          <h1>🎫 ${config.nombreRifa || 'Rifa'}</h1>
+          <div class="subtitle">${config.descripcion || ''}</div>
+          ${config.premio ? `<div class="premio">🏆 Premio: ${config.premio}</div>` : ''}
+        </div>
+        <div class="ticket-body">
+          <div style="background:#e8f8f5; padding:14px; border-radius:10px; text-align:center; margin-bottom:16px;">
+            <span style="font-size:1.3em;">🎉</span>
+            <strong style="color:#00b894; font-size:1.05em;"> ¡Boleta #${numeroBoleta} disponible!</strong>
+            <p style="color:#636e72; font-size:0.85em; margin-top:4px;">Ya está preseleccionada. Puedes agregar más boletas abajo.</p>
+          </div>
+
+          ${precio ? `<div class="info-row"><span class="label">Precio por boleta</span><span class="value">${precio}</span></div>` : ''}
+          ${config.fechaSorteo ? `<div class="info-row"><span class="label">Fecha Sorteo</span><span class="value">${new Date(config.fechaSorteo).toLocaleDateString('es-CO')}</span></div>` : ''}
+
+          <hr class="separator">
+
+          <div class="selected-count">🎫 Boletas seleccionadas: <span id="selectedCount">1</span></div>
+          <div class="selected-boletas" id="selectedChips"></div>
+
+          ${precioNum ? `<div style="text-align:right; font-weight:700; color:#6c5ce7; font-size:1.05em; margin-bottom:10px;">
+            Total: <span id="totalPrice">${precio}</span>
+          </div>` : ''}
+
+          <hr class="separator">
+
+          <h3 style="color:#636e72; font-size:0.95em; margin-bottom:10px;">➕ Agregar más boletas</h3>
+
+          <div class="boleta-search-row">
+            <input type="text" id="boletaSearch" placeholder="Buscar número..." oninput="filterBoletas()">
+            <button onclick="addRandomBoleta()">🎲 Azar</button>
+          </div>
+
+          <div class="boleta-grid" id="boletaGrid"></div>
+          <div class="grid-pagination" id="gridPagination"></div>
+
+          <hr class="separator">
+
+          <h3 style="color:#6c5ce7; margin-bottom:12px;">👤 Datos del Comprador</h3>
+
+          <div class="form-group">
+            <label>Nombre Completo *</label>
+            <input type="text" class="form-control" id="reg-nombre" placeholder="Su nombre completo">
+          </div>
+          <div class="form-group">
+            <label>Cédula / Documento *</label>
+            <input type="text" class="form-control" id="reg-cedula" placeholder="Número de documento">
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" class="form-control" id="reg-telefono" placeholder="Número de teléfono">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" class="form-control" id="reg-email" placeholder="correo@ejemplo.com">
+          </div>
+
+          <button class="btn btn-comprar" id="btnComprar" onclick="realizarCompra()">
+            🛒 Comprar <span id="btnCount">1</span> boleta(s)
+          </button>
+          <div id="compraResult"></div>
+
+          ${config.organizador ? `<p class="organizador-info">Organiza: ${config.organizador} ${config.telefono ? '| Tel: ' + config.telefono : ''}</p>` : ''}
+        </div>
+      `;
+
+      renderSelectedChips();
+      renderGrid();
+    }
+
+    async function loadAvailableBoletas() {
+      try {
+        const res = await fetch('/api/boletas?estado=disponible&limit=10000');
+        const { data } = await res.json();
+        availableBoletas = data.map(b => b.numero);
+        filteredBoletas = [...availableBoletas];
+      } catch (e) {
+        availableBoletas = [];
+        filteredBoletas = [];
+      }
+    }
+
+    function filterBoletas() {
+      const search = document.getElementById('boletaSearch').value.trim();
+      filteredBoletas = search
+        ? availableBoletas.filter(n => n.includes(search))
+        : [...availableBoletas];
+      gridPage = 1;
+      renderGrid();
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('boletaGrid');
+      const pagination = document.getElementById('gridPagination');
+      if (!grid) return;
+
+      const totalPages = Math.ceil(filteredBoletas.length / GRID_PAGE_SIZE);
+      const start = (gridPage - 1) * GRID_PAGE_SIZE;
+      const pageItems = filteredBoletas.slice(start, start + GRID_PAGE_SIZE);
+
+      grid.innerHTML = pageItems.length === 0
+        ? '<p style="grid-column:1/-1; text-align:center; color:#636e72; padding:20px;">No se encontraron boletas</p>'
+        : pageItems.map(num => {
+            const isPreselected = num === numeroBoleta;
+            const isSelected = selectedBoletas.has(num);
+            let cls = 'boleta-chip';
+            if (isPreselected && isSelected) cls += ' preselected';
+            else if (isSelected) cls += ' selected';
+            return `<div class="${cls}" onclick="toggleBoleta('${num}')">${num}</div>`;
+          }).join('');
+
+      pagination.innerHTML = `
+        <button onclick="gridPage--;renderGrid();" ${gridPage <= 1 ? 'disabled' : ''}>← Ant</button>
+        <span>${gridPage} / ${totalPages || 1} (${filteredBoletas.length} disponibles)</span>
+        <button onclick="gridPage++;renderGrid();" ${gridPage >= totalPages ? 'disabled' : ''}>Sig →</button>
+      `;
+    }
+
+    function toggleBoleta(num) {
+      if (selectedBoletas.has(num)) {
+        if (num === numeroBoleta) { showToast('Esta boleta fue la escaneada, no se puede quitar', 'error'); return; }
+        selectedBoletas.delete(num);
+      } else {
+        selectedBoletas.add(num);
+      }
+      renderSelectedChips();
+      renderGrid();
+      updateTotal();
+    }
+
+    function removeBoleta(num) {
+      if (num === numeroBoleta) { showToast('Esta boleta fue la escaneada, no se puede quitar', 'error'); return; }
+      selectedBoletas.delete(num);
+      renderSelectedChips();
+      renderGrid();
+      updateTotal();
+    }
+
+    function renderSelectedChips() {
+      const container = document.getElementById('selectedChips');
+      const countEl = document.getElementById('selectedCount');
+      const btnCount = document.getElementById('btnCount');
+      if (!container) return;
+
+      const sorted = Array.from(selectedBoletas).sort();
+      container.innerHTML = sorted.map(num => {
+        const isP = num === numeroBoleta;
+        return `<span class="chip ${isP ? 'preselected' : ''}">
+          #${num}
+          ${!isP ? `<span class="remove" onclick="removeBoleta('${num}')">✕</span>` : '⭐'}
+        </span>`;
+      }).join('');
+
+      if (countEl) countEl.textContent = selectedBoletas.size;
+      if (btnCount) btnCount.textContent = selectedBoletas.size;
+    }
+
+    function updateTotal() {
+      const totalEl = document.getElementById('totalPrice');
+      if (!totalEl || !config.precioBoleta) return;
+      const total = selectedBoletas.size * config.precioBoleta;
+      totalEl.textContent = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(total);
+    }
+
+    function addRandomBoleta() {
+      const available = availableBoletas.filter(n => !selectedBoletas.has(n));
+      if (available.length === 0) { showToast('No hay más boletas disponibles', 'error'); return; }
+      const random = available[Math.floor(Math.random() * available.length)];
+      selectedBoletas.add(random);
+      renderSelectedChips();
+      renderGrid();
+      updateTotal();
+      showToast(`Boleta #${random} agregada al azar`, 'success');
+    }
+
+    async function realizarCompra() {
       const nombre = document.getElementById('reg-nombre').value.trim();
       const cedula = document.getElementById('reg-cedula').value.trim();
       const telefono = document.getElementById('reg-telefono').value.trim();
       const email = document.getElementById('reg-email').value.trim();
-      const resultDiv = document.getElementById('registerResult');
+      const resultDiv = document.getElementById('compraResult');
+      const btn = document.getElementById('btnComprar');
 
-      if (!nombre || !cedula) {
-        resultDiv.innerHTML = '<p style="color:red; margin-top:10px;">Nombre y cédula son obligatorios</p>';
-        return;
-      }
+      if (!nombre || !cedula) { showToast('Nombre y cédula son obligatorios', 'error'); return; }
+      if (selectedBoletas.size === 0) { showToast('Selecciona al menos una boleta', 'error'); return; }
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Procesando...';
 
       try {
-        // 1. Crear o buscar cliente
-        let clienteId;
         const clienteRes = await fetch('/api/clientes', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -268,32 +557,51 @@
         });
         const clienteData = await clienteRes.json();
 
-        if (clienteData.success) {
-          clienteId = clienteData.data.id;
-        } else if (clienteData.data && clienteData.data.id) {
-          clienteId = clienteData.data.id;
-        } else {
-          resultDiv.innerHTML = `<p style="color:red; margin-top:10px;">${clienteData.error}</p>`;
-          return;
-        }
+        let clienteId;
+        if (clienteData.success) clienteId = clienteData.data.id;
+        else if (clienteData.data && clienteData.data.id) clienteId = clienteData.data.id;
+        else throw new Error(clienteData.error || 'Error creando cliente');
 
-        // 2. Vender boleta
-        const ventaRes = await fetch(`/api/boletas/${numero}/vender`, {
-          method: 'PUT',
+        const numeros = Array.from(selectedBoletas);
+        const ventaRes = await fetch('/api/boletas/vender-lote', {
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ clienteId }),
+          body: JSON.stringify({ numeros, clienteId }),
         });
         const ventaData = await ventaRes.json();
 
         if (ventaData.success) {
-          resultDiv.innerHTML = '<div class="success-msg">✅ ¡Registro exitoso! La boleta ha sido asignada a su nombre.</div>';
-          setTimeout(() => loadBoleta(), 2000);
+          const vendidas = ventaData.data.vendidas.length;
+          const errores = ventaData.data.errores.length;
+          const emailMsg = ventaData.email && ventaData.email.success ? ' 📧 Email enviado.' : '';
+
+          resultDiv.innerHTML = `
+            <div class="success-msg">
+              ✅ ¡Compra exitosa!<br>
+              ${vendidas} boleta(s) registradas a nombre de <strong>${nombre}</strong>.
+              ${errores > 0 ? `<br>⚠️ ${errores} boleta(s) no se pudieron vender.` : ''}
+              ${emailMsg}
+            </div>`;
+          btn.textContent = '✅ ¡Compra realizada!';
+          setTimeout(() => location.reload(), 3000);
         } else {
-          resultDiv.innerHTML = `<p style="color:red; margin-top:10px;">${ventaData.error}</p>`;
+          throw new Error(ventaData.error || 'Error procesando la compra');
         }
       } catch (err) {
-        resultDiv.innerHTML = `<p style="color:red; margin-top:10px;">Error: ${err.message}</p>`;
+        resultDiv.innerHTML = `<p style="color:red; margin-top:10px;">❌ ${err.message}</p>`;
+        btn.disabled = false;
+        btn.textContent = `🛒 Comprar ${selectedBoletas.size} boleta(s)`;
       }
+    }
+
+    function showToast(msg, type) {
+      const existing = document.querySelector('.toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
     }
 
     loadBoleta();
