@@ -213,15 +213,15 @@ function getDashboardMetrics() {
 
 function getConfig() {
   const defaults = {
-    nombreRifa: 'Gran Rifa',
-    descripcion: 'Rifa benéfica',
+    nombreRifa: 'Rifas El Gran Camión',
+    descripcion: 'KIA Picanto 0KM 2026 - Juega el 20 de junio con la Lotería de Boyacá',
     precioBoleta: 120000,
     totalBoletas: 10000,
-    fechaSorteo: '',
-    premio: 'camion',
-    organizador: 'geiner',
-    telefono: '+573217669425',
-    logo: '',
+    fechaSorteo: '2026-06-20',
+    premio: 'KIA Picanto 0KM 2026',
+    organizador: 'Inversiones Castaño S.A.S',
+    telefono: '3217706789',
+    logo: '/img/kia.jpg',
     smtpHost: '',
     smtpPort: 587,
     smtpUser: '',
