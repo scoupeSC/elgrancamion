@@ -16,12 +16,12 @@ if (!fs.existsSync(DB_DIR)) {
 
 const TOTAL = 10000;
 
-console.log(`🎫 Generando ${TOTAL} boletas...`);
+console.log(`🎫 Generando ${TOTAL} boletas (0000-9999)...`);
 
 const boletas = [];
 
-for (let i = 1; i <= TOTAL; i++) {
-  const numero = String(i).padStart(5, '0'); // 00001 - 10000
+for (let i = 0; i < TOTAL; i++) {
+  const numero = String(i).padStart(4, '0'); // 0000 - 9999
   boletas.push({
     id: uuidv4(),
     numero: numero,
@@ -35,7 +35,7 @@ for (let i = 1; i <= TOTAL; i++) {
     updatedAt: new Date().toISOString(),
   });
 
-  if (i % 1000 === 0) {
+  if (i > 0 && i % 1000 === 0) {
     console.log(`  ✅ ${i} boletas generadas...`);
   }
 }
