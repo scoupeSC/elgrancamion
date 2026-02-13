@@ -221,7 +221,7 @@ function getConfig() {
     premio: 'KIA Picanto 0KM 2026',
     organizador: 'Inversiones Castaño S.A.S',
     telefono: '3217706789',
-    logo: '/img/kia.jpg',
+    logo: '/img/kia.png',
     smtpHost: '',
     smtpPort: 587,
     smtpUser: '',
