@@ -148,10 +148,6 @@
       gap: 5px;
       animation: chipIn 0.25s ease;
     }
-    .selected-boletas .chip.preselected {
-      background: linear-gradient(135deg, #27ae60, #2ecc71);
-      color: white;
-    }
     .selected-boletas .chip .remove {
       cursor: pointer;
       opacity: 0.7;
@@ -229,7 +225,6 @@
     }
     .boleta-grid .boleta-chip:hover { border-color: #d4af37; background: rgba(212,175,55,0.1); color: #d4af37; }
     .boleta-grid .boleta-chip.selected { background: linear-gradient(135deg, #d4af37, #c5a028); color: #0a0a0a; border-color: #d4af37; }
-    .boleta-grid .boleta-chip.preselected { background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; border-color: #2ecc71; }
 
     .grid-pagination {
       display: flex;
@@ -460,16 +455,11 @@
       const precio = config.precioBoleta ? formatCOP(config.precioBoleta) : '';
       const precioNum = config.precioBoleta || 0;
 
-      selectedBoletas.add(numeroBoleta);
       await loadAvailableBoletas();
 
       document.getElementById('ticketCard').innerHTML = `
         ${renderBanner()}
         ${renderHeader()}
-        <div class="boleta-highlight">
-          <div class="numero-grande">#${numeroBoleta}</div>
-          <div class="estado-text">✨ ¡Disponible!</div>
-        </div>
         <div class="ticket-body">
           <div class="info-grid">
             ${precio ? `<div class="info-box"><div class="info-label">Valor por Boleta</div><div class="info-value">${precio}</div></div>` : ''}
@@ -479,14 +469,14 @@
           <hr class="gold-separator">
 
           <div class="section-title">🎫 Boletas Seleccionadas</div>
-          <div class="selected-count">Tienes <span id="selectedCount">1</span> boleta(s) seleccionada(s)</div>
+          <div class="selected-count">Tienes <span id="selectedCount">0</span> boleta(s) seleccionada(s)</div>
           <div class="selected-boletas" id="selectedChips"></div>
 
-          ${precioNum ? `<div class="total-price">Total: <span id="totalPrice">${precio}</span></div>` : ''}
+          ${precioNum ? `<div class="total-price">Total: <span id="totalPrice">${formatCOP(0)}</span></div>` : ''}
 
           <hr class="gold-separator">
 
-          <div class="section-title">➕ Agregar más boletas</div>
+          <div class="section-title">🎫 Seleccionar boletas</div>
 
           <div class="search-row">
             <input type="text" id="boletaSearch" placeholder="Buscar número..." oninput="filterBoletas()">
@@ -518,7 +508,7 @@
           </div>
 
           <button class="btn-comprar" id="btnComprar" onclick="realizarCompra()">
-            🛒 Comprar <span id="btnCount">1</span> Boleta(s)
+            🛒 Comprar <span id="btnCount">0</span> Boleta(s)
           </button>
           <div id="compraResult"></div>
 
@@ -561,11 +551,8 @@
       grid.innerHTML = pageItems.length === 0
         ? '<p style="grid-column:1/-1; text-align:center; color:#666; padding:20px;">No se encontraron boletas</p>'
         : pageItems.map(num => {
-            const isPreselected = num === numeroBoleta;
             const isSelected = selectedBoletas.has(num);
-            let cls = 'boleta-chip';
-            if (isPreselected && isSelected) cls += ' preselected';
-            else if (isSelected) cls += ' selected';
+            const cls = 'boleta-chip' + (isSelected ? ' selected' : '');
             return `<div class="${cls}" onclick="toggleBoleta('${num}')">${num}</div>`;
           }).join('');
 
@@ -578,7 +565,6 @@
 
     function toggleBoleta(num) {
       if (selectedBoletas.has(num)) {
-        if (num === numeroBoleta) { showToast('Esta boleta fue la escaneada', 'error'); return; }
         selectedBoletas.delete(num);
       } else {
         selectedBoletas.add(num);
@@ -589,7 +575,6 @@
     }
 
     function removeBoleta(num) {
-      if (num === numeroBoleta) { showToast('Esta boleta fue la escaneada', 'error'); return; }
       selectedBoletas.delete(num);
       renderSelectedChips();
       renderGrid();
@@ -604,10 +589,9 @@
 
       const sorted = Array.from(selectedBoletas).sort();
       container.innerHTML = sorted.map(num => {
-        const isP = num === numeroBoleta;
-        return `<span class="chip ${isP ? 'preselected' : ''}">
+        return `<span class="chip">
           #${num}
-          ${!isP ? `<span class="remove" onclick="removeBoleta('${num}')">✕</span>` : ' ⭐'}
+          <span class="remove" onclick="removeBoleta('${num}')">✕</span>
         </span>`;
       }).join('');
 
