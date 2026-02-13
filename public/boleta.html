@@ -223,8 +223,17 @@
       transition: all 0.15s;
       font-family: 'Courier New', monospace;
     }
-    .boleta-grid .boleta-chip:hover { border-color: #d4af37; background: rgba(212,175,55,0.1); color: #d4af37; }
+    .boleta-grid .boleta-chip:hover:not(.sold) { border-color: #d4af37; background: rgba(212,175,55,0.1); color: #d4af37; }
     .boleta-grid .boleta-chip.selected { background: linear-gradient(135deg, #d4af37, #c5a028); color: #0a0a0a; border-color: #d4af37; }
+    .boleta-grid .boleta-chip.sold {
+      background: rgba(231,76,60,0.15);
+      color: #e74c3c;
+      border-color: rgba(231,76,60,0.3);
+      cursor: not-allowed;
+      opacity: 0.6;
+      text-decoration: line-through;
+      pointer-events: none;
+    }
 
     .grid-pagination {
       display: flex;
@@ -358,6 +367,8 @@
   <script>
     const numeroBoleta = window.location.pathname.split('/').pop();
     let selectedBoletas = new Set();
+    let soldBoletas = new Set();
+    let allBoletas = [];
     let availableBoletas = [];
     let filteredBoletas = [];
     let gridPage = 1;
@@ -522,11 +533,14 @@
 
     async function loadAvailableBoletas() {
       try {
-        const res = await fetch('/api/boletas?estado=disponible&limit=10000');
+        const res = await fetch('/api/boletas?limit=10000');
         const { data } = await res.json();
-        availableBoletas = data.map(b => b.numero);
-        filteredBoletas = [...availableBoletas];
+        allBoletas = data.map(b => b.numero);
+        availableBoletas = data.filter(b => b.estado === 'disponible').map(b => b.numero);
+        soldBoletas = new Set(data.filter(b => b.estado === 'vendida').map(b => b.numero));
+        filteredBoletas = [...allBoletas];
       } catch (e) {
+        allBoletas = [];
         availableBoletas = [];
         filteredBoletas = [];
       }
@@ -534,7 +548,7 @@
 
     function filterBoletas() {
       const search = document.getElementById('boletaSearch').value.trim();
-      filteredBoletas = search ? availableBoletas.filter(n => n.includes(search)) : [...availableBoletas];
+      filteredBoletas = search ? allBoletas.filter(n => n.includes(search)) : [...allBoletas];
       gridPage = 1;
       renderGrid();
     }
@@ -551,19 +565,23 @@
       grid.innerHTML = pageItems.length === 0
         ? '<p style="grid-column:1/-1; text-align:center; color:#666; padding:20px;">No se encontraron boletas</p>'
         : pageItems.map(num => {
+            const isSold = soldBoletas.has(num);
             const isSelected = selectedBoletas.has(num);
-            const cls = 'boleta-chip' + (isSelected ? ' selected' : '');
-            return `<div class="${cls}" onclick="toggleBoleta('${num}')">${num}</div>`;
+            let cls = 'boleta-chip';
+            if (isSold) cls += ' sold';
+            else if (isSelected) cls += ' selected';
+            return `<div class="${cls}"${!isSold ? ` onclick="toggleBoleta('${num}')"` : ''}>${isSold ? '✕' : num}</div>`;
           }).join('');
 
       pagination.innerHTML = `
         <button onclick="gridPage--;renderGrid();" ${gridPage <= 1 ? 'disabled' : ''}>← Ant</button>
-        <span>${gridPage} / ${totalPages || 1} (${filteredBoletas.length} disp.)</span>
+        <span>${gridPage} / ${totalPages || 1} (${availableBoletas.length} disp.)</span>
         <button onclick="gridPage++;renderGrid();" ${gridPage >= totalPages ? 'disabled' : ''}>Sig →</button>
       `;
     }
 
     function toggleBoleta(num) {
+      if (soldBoletas.has(num)) return;
       if (selectedBoletas.has(num)) {
         selectedBoletas.delete(num);
       } else {
@@ -606,7 +624,7 @@
     }
 
     function addRandomBoleta() {
-      const available = availableBoletas.filter(n => !selectedBoletas.has(n));
+      const available = availableBoletas.filter(n => !selectedBoletas.has(n) && !soldBoletas.has(n));
       if (available.length === 0) { showToast('No hay más boletas', 'error'); return; }
       const random = available[Math.floor(Math.random() * available.length)];
       selectedBoletas.add(random);
@@ -656,6 +674,16 @@
           const errores = ventaData.data.errores.length;
           const emailMsg = ventaData.email && ventaData.email.success ? ' 📧 Email enviado.' : '';
 
+          // Marcar inmediatamente como vendidas en la UI
+          numeros.forEach(n => {
+            soldBoletas.add(n);
+            selectedBoletas.delete(n);
+            availableBoletas = availableBoletas.filter(a => a !== n);
+          });
+          renderSelectedChips();
+          renderGrid();
+          updateTotal();
+
           resultDiv.innerHTML = `
             <div class="success-msg">
               ✅ ¡Compra exitosa!<br>
@@ -664,7 +692,6 @@
               ${emailMsg}
             </div>`;
           btn.textContent = '✅ ¡Compra realizada!';
-          setTimeout(() => location.reload(), 3000);
         } else {
           throw new Error(ventaData.error || 'Error procesando la compra');
         }
